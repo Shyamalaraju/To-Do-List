@@ -8,16 +8,36 @@ function AddTask() {
   } else {
     let li = document.createElement("li");
     li.textContent = inputBox.value;
-    
+
+    // Create span to hold both edit and delete buttons
     let span = document.createElement("span");
-    span.innerHTML = '<i class="fa-solid fa-trash" style="color: red;"></i>';
-    
-    // Delete button click event
-    span.addEventListener("click", function () {
+
+    // Create edit icon
+    let editIcon = document.createElement("i");
+    editIcon.classList.add("fa-solid", "fa-pen");
+    editIcon.style.color = "orange";
+    editIcon.addEventListener("click", function () {
+      const newTask = prompt("Edit your task:", li.textContent);
+      if (newTask) {
+        li.firstChild.textContent = newTask;
+        saveData();
+      }
+    });
+
+    // Create delete icon
+    let deleteIcon = document.createElement("i");
+    deleteIcon.classList.add("fa-solid", "fa-trash");
+    deleteIcon.style.color = "red";
+    deleteIcon.addEventListener("click", function () {
       li.remove();
       saveData();
     });
 
+    // Append edit and delete icons to the span
+    span.appendChild(editIcon);
+    span.appendChild(deleteIcon);
+
+    // Append the span to the li
     li.appendChild(span);
     listContainer.appendChild(li);
   }
@@ -41,20 +61,34 @@ function showTask() {
   listContainer.innerHTML = localStorage.getItem("tasks") || "";
 
   // Re-attach delete event listeners after reloading
-  document.querySelectorAll("li span").forEach(span => {
-    span.addEventListener("click", function () {
-      span.parentElement.remove();
+  document.querySelectorAll("li span i").forEach(icon => {
+    icon.addEventListener("click", function () {
+      const li = icon.parentElement.parentElement;
+      li.remove();
       saveData();
+    });
+  });
+
+  // Re-attach edit event listeners after reloading
+  document.querySelectorAll("li span i.fa-pen").forEach(icon => {
+    icon.addEventListener("click", function () {
+      const li = icon.parentElement.parentElement;
+      const newTask = prompt("Edit your task:", li.firstChild.textContent);
+      if (newTask) {
+        li.firstChild.textContent = newTask;
+        saveData();
+      }
     });
   });
 }
 
 // Function to clear all tasks
 function clearAllTasks() {
-  localStorage.removeItem("tasks"); 
-  listContainer.innerHTML = ""; 
+  localStorage.removeItem("tasks");
+  listContainer.innerHTML = "";
 }
 
 // Attach event listener to clear button
 clearButton.addEventListener("click", clearAllTasks);
+
 showTask();
